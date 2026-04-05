@@ -24,7 +24,7 @@ def _load_config() -> object:
 def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[set[str], Path]:
     config_path = question_root / f"{assignment_name}.md"
     if not config_path.is_file():
-        raise FileNotFoundError(f"{config_path}: 設定ファイルが存在しません。")
+        raise FileNotFoundError(f"{config_path.name}: 設定ファイルが存在しません。")
 
     allowed = {
         line.strip()

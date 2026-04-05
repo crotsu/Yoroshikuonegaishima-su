@@ -1,3 +1,5 @@
+# Yoroshikuonegaishima-su
+
 # 課題提出スクリプト
 
 `yorosikuonegaishima-su.py` は、課題ディレクトリ内の `*.c` ファイルを確認し、設定ファイルに記載されたファイル名だけを受理して提出先へコピーする Python スクリプトです。

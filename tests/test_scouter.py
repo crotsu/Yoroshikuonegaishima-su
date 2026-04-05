@@ -143,14 +143,16 @@ class ScouterTest(unittest.TestCase):
         self.assertIn("0/2", output)
 
     def test_missing_config_returns_error(self) -> None:
-        """check_assignments に渡す question_root が存在しない場合のエラー確認用。
-        実際の config.py 未存在エラーは main() 経由でテストする。"""
-        output = StringIO()
-        with redirect_stdout(output):
-            exit_code = MODULE.main(["scouter"])
-
-        self.assertEqual(exit_code, 1)
-        self.assertIn("設定ファイルが存在しません。", output.getvalue())
+        original = MODULE.CONFIG_PATH
+        MODULE.CONFIG_PATH = Path("/nonexistent/config.py")
+        try:
+            output = StringIO()
+            with redirect_stdout(output):
+                exit_code = MODULE.main(["scouter"])
+            self.assertEqual(exit_code, 1)
+            self.assertIn("設定ファイルが存在しません。", output.getvalue())
+        finally:
+            MODULE.CONFIG_PATH = original
 
     def test_user_submission_does_not_affect_other_user(self) -> None:
         _, question_root, submission_base = self.make_workspace()

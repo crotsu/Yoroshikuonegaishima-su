@@ -1,2 +1,2 @@
-QUESTION_ROOT = "/path/to/questions"
-SUBMISSION_BASE = "/path/to/send"
+QUESTION_ROOT = "/path/to/questions"   # 課題定義ファイル（*.md）のあるディレクトリ
+SUBMISSION_BASE = "/path/to/send"      # 提出先のベースディレクトリ

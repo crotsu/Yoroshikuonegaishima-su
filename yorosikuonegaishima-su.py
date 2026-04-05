@@ -41,6 +41,7 @@ def process_submission(
 ) -> int:
     if not assignment_dir.is_dir():
         print(f"{assignment_dir}: 課題ディレクトリが存在しません。")
+        print("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>")
         return 1
 
     assignment_name = assignment_dir.name
@@ -48,6 +49,7 @@ def process_submission(
         allowed_filenames, _ = load_allowed_filenames(question_root, assignment_name)
     except FileNotFoundError as error:
         print(error)
+        print("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>")
         return 1
 
     c_files = sorted(

@@ -41,7 +41,7 @@ def process_submission(
 ) -> int:
     if not assignment_dir.is_dir():
         print(f"{assignment_dir}: 課題ディレクトリが存在しません。")
-        print("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>")
+        print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
         return 1
 
     assignment_name = assignment_dir.name
@@ -49,7 +49,7 @@ def process_submission(
         allowed_filenames, _ = load_allowed_filenames(question_root, assignment_name)
     except FileNotFoundError as error:
         print(error)
-        print("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>")
+        print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
         return 1
 
     c_files = sorted(
@@ -87,13 +87,17 @@ def process_submission(
 
 def main(argv: list[str]) -> int:
     if len(argv) != 2:
-        print("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>")
+        print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
         return 1
 
     assignment_dir = Path(argv[1])
     config = _load_config()
-    question_root = Path(config.QUESTION_ROOT)
-    submission_root = Path(config.SUBMISSION_BASE) / getpass.getuser() / assignment_dir.name
+    try:
+        question_root = Path(config.QUESTION_ROOT)
+        submission_root = Path(config.SUBMISSION_BASE) / getpass.getuser() / assignment_dir.name
+    except AttributeError as e:
+        print(f"config.py の設定が不正です: {e}")
+        return 1
     return process_submission(assignment_dir, question_root=question_root, submission_root=submission_root)
 
 

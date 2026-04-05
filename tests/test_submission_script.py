@@ -45,7 +45,7 @@ class SubmissionScriptTest(unittest.TestCase):
             exit_code = MODULE.main(["yorosikuonegaishima-su.py"])
 
         self.assertEqual(exit_code, 1)
-        self.assertIn("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>", output.getvalue())
+        self.assertIn("使い方: yorosikuonegaishima-su <課題ディレクトリ>", output.getvalue())
 
     def test_process_submission_reports_missing_assignment_directory(self) -> None:
         _, question_root, submission_root = self.make_workspace()
@@ -57,7 +57,7 @@ class SubmissionScriptTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("課題ディレクトリが存在しません。", output.getvalue())
-        self.assertIn("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>", output.getvalue())
+        self.assertIn("使い方: yorosikuonegaishima-su <課題ディレクトリ>", output.getvalue())
 
     def test_process_submission_reports_missing_config_file(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
@@ -66,7 +66,7 @@ class SubmissionScriptTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("設定ファイルが存在しません。", output)
-        self.assertIn("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>", output)
+        self.assertIn("使い方: yorosikuonegaishima-su <課題ディレクトリ>", output)
 
     def test_process_submission_reports_when_no_c_files_exist(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()

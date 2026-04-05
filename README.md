@@ -2,7 +2,7 @@
 
 # 課題提出スクリプト
 
-`yorosikuonegaishima-su.py` は、課題ディレクトリ内の `*.c` ファイルを確認し、設定ファイルに記載されたファイル名だけを受理して提出先へコピーする Python スクリプトです。
+`yorosikuonegaishima-su` は、課題ディレクトリ内の `*.c` ファイルを確認し、設定ファイルに記載されたファイル名だけを受理して提出先へコピーする Python スクリプトです。
 
 ## できること
 - 指定ディレクトリ直下の `*.c` だけを提出対象にする
@@ -10,22 +10,17 @@
 - 実行ユーザー名に応じた提出先ディレクトリへコピーする
 - 新規提出と上書き提出で異なるメッセージを表示する
 
-## セットアップ
+## セットアップ（管理者）
 
-`config.py.example` をコピーして `config.py` を作成し、環境に合わせてパスを設定します。
-
-```bash
-cp config.py.example config.py
-```
-
-`config.py` の内容:
-
-```python
-QUESTION_ROOT = "/path/to/questions"   # 設定ファイルのあるディレクトリ
-SUBMISSION_BASE = "/path/to/send"      # 提出先のベースディレクトリ
-```
-
-提出先は `SUBMISSION_BASE/<ユーザー名>/<課題ディレクトリ名>` になります。
+1. スクリプトを `/usr/local/bin/yorosikuonegaishima-su` としてコピーする。
+2. `config.py.example` を参考に `config.py` を作成し、本番パスに配置する。
+   - 配置先: スクリプト内の `CONFIG_PATH` に記載されたパス
+   - 内容:
+     ```python
+     QUESTION_ROOT = "/path/to/questions"   # 課題設定ファイルのあるディレクトリ
+     SUBMISSION_BASE = "/path/to/send"      # 提出先のベースディレクトリ
+     ```
+3. 提出先ディレクトリ（`SUBMISSION_BASE/<ユーザー名>/<課題ディレクトリ名>`）を事前に作成しておく。
 
 ## 使い方
 
@@ -75,7 +70,7 @@ No0108_2.c
 - 提出先ディレクトリ未存在: `<提出先ディレクトリ>: 提出先ディレクトリが存在しません。`
 - `.c` ファイルなし: `<課題ディレクトリ>: 送信対象の .c ファイルがありません。`
 - 受理ファイルなし: `受理されたファイルはありませんでした。`
-- 使い方エラー: `使い方: yorosikuonegaishima-su.py <課題ディレクトリ>`
+- 使い方エラー: `使い方: yorosikuonegaishima-su <課題ディレクトリ>`
 
 ## 関連文書
 - 仕様: `docs/specs/submission-script.md`

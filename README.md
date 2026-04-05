@@ -6,14 +6,31 @@
 
 ## できること
 - 指定ディレクトリ直下の `*.c` だけを提出対象にする
-- `/home/class/question/<課題ディレクトリ名>` に書かれたファイル名だけを受理する
+- 設定ファイルに書かれたファイル名だけを受理する
 - 実行ユーザー名に応じた提出先ディレクトリへコピーする
 - 新規提出と上書き提出で異なるメッセージを表示する
+
+## セットアップ
+
+`config.py.example` をコピーして `config.py` を作成し、環境に合わせてパスを設定します。
+
+```bash
+cp config.py.example config.py
+```
+
+`config.py` の内容:
+
+```python
+QUESTION_ROOT = "/path/to/questions"   # 設定ファイルのあるディレクトリ
+SUBMISSION_BASE = "/path/to/send"      # 提出先のベースディレクトリ
+```
+
+提出先は `SUBMISSION_BASE/<ユーザー名>/<課題ディレクトリ名>` になります。
 
 ## 使い方
 
 ```bash
-python3 yorosikuonegaishima-su.py j2pro0108
+yorosikuonegaishima-su j2pro0108
 ```
 
 - `j2pro0108` のような課題ディレクトリ名を 1 つ指定します。
@@ -28,13 +45,7 @@ j2pro0108/
   No0108_2.c
 ```
 
-設定ファイル:
-
-```text
-/home/class/question/j2pro0108
-```
-
-設定ファイルの内容例:
+設定ファイル（`QUESTION_ROOT/j2pro0108.md`）の内容例:
 
 ```text
 No0108_1.c
@@ -49,9 +60,8 @@ No0108_2.c
 - `*.c` 以外のファイルは無視します。
 
 ## 提出先
-- 提出先は `/home/class/j2/prog/.send/<ユーザー名>/<課題ディレクトリ名>` です。
+- 提出先は `SUBMISSION_BASE/<ユーザー名>/<課題ディレクトリ名>` です。
 - ユーザー名はスクリプトを実行したユーザーのログイン名を使います。
-- たとえば、ユーザー名が `j25401`、課題ディレクトリが `j2pro0408` の場合、提出先は `/home/class/j2/prog/.send/j25401/j2pro0408` です。
 - 提出先ディレクトリは事前に作成されている前提です。
 - 同名ファイルがない場合は新規提出です。
 - 同名ファイルがある場合は上書きします。

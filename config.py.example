@@ -1,0 +1,2 @@
+QUESTION_ROOT = "/path/to/questions"
+SUBMISSION_BASE = "/path/to/send"

@@ -3,13 +3,25 @@
 from __future__ import annotations
 
 import getpass
+import importlib.util
 from pathlib import Path
 import shutil
 import sys
 
 
-QUESTION_ROOT = Path("/home/class/j2/prog/.send/j25/questions")
-SUBMISSION_BASE = Path("/home/class/j2/prog/.send/j25")
+def _load_config() -> object:
+    config_path = Path(__file__).resolve().parent / "config.py"
+    if not config_path.is_file():
+        raise FileNotFoundError(f"{config_path}: 設定ファイル config.py が見つかりません。config.py.example を参考に作成してください。")
+    spec = importlib.util.spec_from_file_location("config", config_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_config = _load_config()
+QUESTION_ROOT = Path(_config.QUESTION_ROOT)
+SUBMISSION_BASE = Path(_config.SUBMISSION_BASE)
 
 
 def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[set[str], Path]:

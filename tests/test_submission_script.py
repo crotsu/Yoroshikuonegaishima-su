@@ -39,6 +39,14 @@ class SubmissionScriptTest(unittest.TestCase):
             )
         return exit_code, output.getvalue()
 
+    def test_main_prints_version(self) -> None:
+        output = StringIO()
+        with redirect_stdout(output):
+            exit_code = MODULE.main(["yorosikuonegaishima-su", "--version"])
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn(MODULE.__version__, output.getvalue())
+
     def test_main_returns_usage_error_for_invalid_arguments(self) -> None:
         output = StringIO()
         with redirect_stdout(output):

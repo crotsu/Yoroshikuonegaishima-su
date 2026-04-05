@@ -9,6 +9,8 @@ import shutil
 import sys
 
 
+__version__ = "1.0.0"
+
 CONFIG_PATH = Path("/home/class/j2/prog/.send/j25/questions/config.py")
 
 
@@ -86,6 +88,10 @@ def process_submission(
 
 
 def main(argv: list[str]) -> int:
+    if len(argv) == 2 and argv[1] in ("--version", "-v"):
+        print(__version__)
+        return 0
+
     if len(argv) != 2:
         print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
         return 1

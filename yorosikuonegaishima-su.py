@@ -9,19 +9,16 @@ import shutil
 import sys
 
 
+CONFIG_PATH = Path("/home/class/j2/prog/.send/j25/questions/config.py")
+
+
 def _load_config() -> object:
-    config_path = Path(__file__).resolve().parent / "config.py"
-    if not config_path.is_file():
-        raise FileNotFoundError(f"{config_path}: 設定ファイル config.py が見つかりません。config.py.example を参考に作成してください。")
-    spec = importlib.util.spec_from_file_location("config", config_path)
+    if not CONFIG_PATH.is_file():
+        raise FileNotFoundError(f"{CONFIG_PATH}: 設定ファイル config.py が見つかりません。")
+    spec = importlib.util.spec_from_file_location("config", CONFIG_PATH)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-
-_config = _load_config()
-QUESTION_ROOT = Path(_config.QUESTION_ROOT)
-SUBMISSION_BASE = Path(_config.SUBMISSION_BASE)
 
 
 def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[set[str], Path]:
@@ -39,8 +36,8 @@ def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[s
 
 def process_submission(
     assignment_dir: Path,
-    question_root: Path = QUESTION_ROOT,
-    submission_root: Path | None = None,
+    question_root: Path,
+    submission_root: Path,
 ) -> int:
     if not assignment_dir.is_dir():
         print(f"{assignment_dir}: 課題ディレクトリが存在しません。")
@@ -60,7 +57,7 @@ def process_submission(
         print(f"{assignment_dir}: 送信対象の .c ファイルがありません。")
         return 0
 
-    destination_root = submission_root if submission_root is not None else SUBMISSION_BASE / getpass.getuser() / assignment_name
+    destination_root = submission_root
     if not destination_root.is_dir():
         print(f"{destination_root}: 提出先ディレクトリが存在しません。")
         return 1
@@ -92,8 +89,10 @@ def main(argv: list[str]) -> int:
         return 1
 
     assignment_dir = Path(argv[1])
-    submission_root = SUBMISSION_BASE / getpass.getuser() / assignment_dir.name
-    return process_submission(assignment_dir, submission_root=submission_root)
+    config = _load_config()
+    question_root = Path(config.QUESTION_ROOT)
+    submission_root = Path(config.SUBMISSION_BASE) / getpass.getuser() / assignment_dir.name
+    return process_submission(assignment_dir, question_root=question_root, submission_root=submission_root)
 
 
 if __name__ == "__main__":

@@ -48,9 +48,12 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertIn("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>", output.getvalue())
 
     def test_process_submission_reports_missing_assignment_directory(self) -> None:
+        _, question_root, submission_root = self.make_workspace()
         output = StringIO()
         with redirect_stdout(output):
-            exit_code = MODULE.process_submission(Path("does-not-exist"))
+            exit_code = MODULE.process_submission(
+                Path("does-not-exist"), question_root=question_root, submission_root=submission_root
+            )
 
         self.assertEqual(exit_code, 1)
         self.assertIn("課題ディレクトリが存在しません。", output.getvalue())

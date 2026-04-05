@@ -66,7 +66,7 @@ class SubmissionScriptTest(unittest.TestCase):
     def test_process_submission_reports_when_no_c_files_exist(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         (assignment_dir / "memo.txt").write_text("ignore\n", encoding="utf-8")
-        (question_root / "j2pro0108").write_text("No0108_1.c\n", encoding="utf-8")
+        (question_root / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
 
@@ -74,13 +74,24 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertIn("送信対象の .c ファイルがありません。", output)
         self.assertFalse(submission_root.exists())
 
+    def test_process_submission_reports_missing_submission_directory(self) -> None:
+        assignment_dir, question_root, submission_root = self.make_workspace()
+        (assignment_dir / "No0108_1.c").write_text("int main(void){return 0;}\n", encoding="utf-8")
+        (question_root / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
+
+        exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("提出先ディレクトリが存在しません。", output)
+
     def test_process_submission_accepts_only_matching_c_files(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
+        submission_root.mkdir()
         (assignment_dir / "No0108_1.c").write_text("int main(void){return 0;}\n", encoding="utf-8")
         (assignment_dir / "No0108_2.c").write_text("int main(void){return 1;}\n", encoding="utf-8")
         (assignment_dir / "No0108_3.c").write_text("int main(void){return 2;}\n", encoding="utf-8")
         (assignment_dir / "note.txt").write_text("ignored\n", encoding="utf-8")
-        (question_root / "j2pro0108").write_text(
+        (question_root / "j2pro0108.md").write_text(
             "No0108_1.c\nNo0108_2.c\n", encoding="utf-8"
         )
 
@@ -96,9 +107,10 @@ class SubmissionScriptTest(unittest.TestCase):
 
     def test_process_submission_overwrites_existing_submission(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
+        submission_root.mkdir()
         source_file = assignment_dir / "No0108_1.c"
         source_file.write_text("first\n", encoding="utf-8")
-        (question_root / "j2pro0108").write_text("No0108_1.c\n", encoding="utf-8")
+        (question_root / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
 
         first_exit_code, first_output = self.run_submission(
             assignment_dir, question_root, submission_root

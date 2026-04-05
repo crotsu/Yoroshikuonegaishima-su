@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
+import getpass
 from pathlib import Path
 import shutil
 import sys
 
 
-QUESTION_ROOT = Path("/home/class/question")
+QUESTION_ROOT = Path("/home/class/j2/prog/.send/j25/questions")
+SUBMISSION_BASE = Path("/home/class/j2/prog/.send/j25")
 
 
 def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[set[str], Path]:
-    config_path = question_root / assignment_name
+    config_path = question_root / f"{assignment_name}.md"
     if not config_path.is_file():
         raise FileNotFoundError(f"{config_path}: 設定ファイルが存在しません。")
 
@@ -46,8 +48,10 @@ def process_submission(
         print(f"{assignment_dir}: 送信対象の .c ファイルがありません。")
         return 0
 
-    destination_root = submission_root if submission_root is not None else Path.cwd() / "submissions"
-    destination_root.mkdir(parents=True, exist_ok=True)
+    destination_root = submission_root if submission_root is not None else SUBMISSION_BASE / getpass.getuser() / assignment_name
+    if not destination_root.is_dir():
+        print(f"{destination_root}: 提出先ディレクトリが存在しません。")
+        return 1
 
     accepted_count = 0
     for source_path in c_files:
@@ -75,7 +79,9 @@ def main(argv: list[str]) -> int:
         print("使い方: yorosikuonegaishima-su.py <課題ディレクトリ>")
         return 1
 
-    return process_submission(Path(argv[1]))
+    assignment_dir = Path(argv[1])
+    submission_root = SUBMISSION_BASE / getpass.getuser() / assignment_dir.name
+    return process_submission(assignment_dir, submission_root=submission_root)
 
 
 if __name__ == "__main__":

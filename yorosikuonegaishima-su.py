@@ -29,9 +29,9 @@ def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[s
         raise FileNotFoundError(f"{config_path.name}: 設定ファイルが存在しません。")
 
     allowed = {
-        line.strip()
+        line.split(",")[0].strip()
         for line in config_path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        if "," in line
     }
     return allowed, config_path
 

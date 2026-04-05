@@ -79,7 +79,7 @@ class SubmissionScriptTest(unittest.TestCase):
     def test_process_submission_reports_when_no_c_files_exist(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         (assignment_dir / "memo.txt").write_text("ignore\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
+        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
 
@@ -90,7 +90,7 @@ class SubmissionScriptTest(unittest.TestCase):
     def test_process_submission_reports_missing_submission_directory(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         (assignment_dir / "No0108_1.c").write_text("int main(void){return 0;}\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
+        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
 
@@ -105,7 +105,7 @@ class SubmissionScriptTest(unittest.TestCase):
         (assignment_dir / "No0108_3.c").write_text("int main(void){return 2;}\n", encoding="utf-8")
         (assignment_dir / "note.txt").write_text("ignored\n", encoding="utf-8")
         (question_root / "j2pro0108.md").write_text(
-            "No0108_1.c\nNo0108_2.c\n", encoding="utf-8"
+            "No0108_1.c, 100\nNo0108_2.c, 200\n", encoding="utf-8"
         )
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
@@ -123,7 +123,7 @@ class SubmissionScriptTest(unittest.TestCase):
         submission_root.mkdir()
         source_file = assignment_dir / "No0108_1.c"
         source_file.write_text("first\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
+        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
 
         first_exit_code, first_output = self.run_submission(
             assignment_dir, question_root, submission_root

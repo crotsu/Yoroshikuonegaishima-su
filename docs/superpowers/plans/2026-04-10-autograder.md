@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -44,6 +45,7 @@ from pathlib import Path
 GRADER_PATH = Path(__file__).resolve().parent.parent / "grader.py"
 SPEC = importlib.util.spec_from_file_location("grader", GRADER_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules["grader"] = MODULE  # Python 3.13+ で dataclass が sys.modules を参照するため必要
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 

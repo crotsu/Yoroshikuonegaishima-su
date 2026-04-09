@@ -20,8 +20,35 @@ class GradeResult:
 
 
 def _run_tests(exe_path: Path, testcase_dir: Path) -> tuple[int, int]:
-    """テストケースを実行して (passed, total) を返す。スタブ: 常に (0, 0)。"""
-    return 0, 0
+    """テストケースを実行して (passed, total) を返す。"""
+    if not testcase_dir.is_dir():
+        return 0, 0
+
+    passed = 0
+    total = 0
+    n = 1
+    while True:
+        in_file = testcase_dir / f"sample-{n}.txt"
+        out_file = testcase_dir / f"sample-{n}-out.txt"
+        if not in_file.exists() or not out_file.exists():
+            break
+        total += 1
+        try:
+            proc = subprocess.run(
+                [str(exe_path)],
+                input=in_file.read_text(encoding="utf-8"),
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            expected = out_file.read_text(encoding="utf-8").strip()
+            if proc.stdout.strip() == expected:
+                passed += 1
+        except subprocess.TimeoutExpired:
+            pass
+        n += 1
+
+    return passed, total
 
 
 def grade_file(

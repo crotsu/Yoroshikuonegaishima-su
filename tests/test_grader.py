@@ -74,6 +74,68 @@ class GraderTest(unittest.TestCase):
         self.assertEqual(result.compile, "ok")
         self.assertEqual(result.compile_error, "")
 
+    def make_testcase_dir(
+        self,
+        question_root: Path,
+        assignment_name: str,
+        stem: str,
+    ) -> Path:
+        """テストケースディレクトリを作成して返す。"""
+        d = question_root / assignment_name / stem
+        d.mkdir(parents=True)
+        return d
+
+    def test_compile_ok_no_testcases(self) -> None:
+        _, question_root, submission_dir = self.make_workspace()
+        c_file = self.write_c_file(
+            submission_dir,
+            "No0108_1.c",
+            "#include <stdio.h>\nint main(void){return 0;}\n",
+        )
+        # テストケースディレクトリを作らない
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+        self.assertEqual(result.compile, "ok")
+        self.assertEqual(result.tests_passed, 0)
+        self.assertEqual(result.tests_total, 0)
+        self.assertEqual(result.score, 0)
+
+    def test_all_tests_pass(self) -> None:
+        _, question_root, submission_dir = self.make_workspace()
+        # stdin の数値を2倍して出力する C プログラム
+        c_file = self.write_c_file(
+            submission_dir,
+            "No0108_1.c",
+            "#include <stdio.h>\nint main(void){int a;scanf(\"%d\",&a);printf(\"%d\\n\",a*2);return 0;}\n",
+        )
+        tc_dir = self.make_testcase_dir(question_root, "j2pro0108", "No0108_1")
+        (tc_dir / "sample-1.txt").write_text("5\n", encoding="utf-8")
+        (tc_dir / "sample-1-out.txt").write_text("10\n", encoding="utf-8")
+
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+        self.assertEqual(result.compile, "ok")
+        self.assertEqual(result.tests_passed, 1)
+        self.assertEqual(result.tests_total, 1)
+        self.assertEqual(result.score, 100)
+
+    def test_partial_tests_pass(self) -> None:
+        _, question_root, submission_dir = self.make_workspace()
+        # 入力を2倍するプログラム: sample-1(5→10)は通過、sample-2(3→99 expected)は失敗
+        c_file = self.write_c_file(
+            submission_dir,
+            "No0108_1.c",
+            "#include <stdio.h>\nint main(void){int a;scanf(\"%d\",&a);printf(\"%d\\n\",a*2);return 0;}\n",
+        )
+        tc_dir = self.make_testcase_dir(question_root, "j2pro0108", "No0108_1")
+        (tc_dir / "sample-1.txt").write_text("5\n", encoding="utf-8")
+        (tc_dir / "sample-1-out.txt").write_text("10\n", encoding="utf-8")
+        (tc_dir / "sample-2.txt").write_text("3\n", encoding="utf-8")
+        (tc_dir / "sample-2-out.txt").write_text("99\n", encoding="utf-8")  # 正解は6だが99を期待
+
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+        self.assertEqual(result.tests_passed, 1)
+        self.assertEqual(result.tests_total, 2)
+        self.assertEqual(result.score, 50)
+
 
 if __name__ == "__main__":
     unittest.main()

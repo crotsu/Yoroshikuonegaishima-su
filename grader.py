@@ -17,3 +17,50 @@ class GradeResult:
     tests_total: int
     partial_score: int | None
     score: int
+
+
+def _run_tests(exe_path: Path, testcase_dir: Path) -> tuple[int, int]:
+    """テストケースを実行して (passed, total) を返す。スタブ: 常に (0, 0)。"""
+    return 0, 0
+
+
+def grade_file(
+    source_path: Path,
+    question_root: Path,
+    assignment_name: str,
+) -> GradeResult:
+    filename = source_path.name
+    stem = source_path.stem
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        exe_path = Path(tmpdir) / "a.out"
+        proc = subprocess.run(
+            ["gcc", str(source_path), "-o", str(exe_path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if proc.returncode != 0:
+            return GradeResult(
+                filename=filename,
+                compile="error",
+                compile_error=proc.stderr,
+                tests_passed=0,
+                tests_total=0,
+                partial_score=None,
+                score=0,
+            )
+
+        testcase_dir = question_root / assignment_name / stem
+        tests_passed, tests_total = _run_tests(exe_path, testcase_dir)
+
+    score = (tests_passed * 100 // tests_total) if tests_total > 0 else 0
+    return GradeResult(
+        filename=filename,
+        compile="ok",
+        compile_error="",
+        tests_passed=tests_passed,
+        tests_total=tests_total,
+        partial_score=None,
+        score=score,
+    )

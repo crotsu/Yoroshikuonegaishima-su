@@ -51,6 +51,29 @@ class GraderTest(unittest.TestCase):
         self.assertIsNone(result.partial_score)
         self.assertEqual(result.score, 0)
 
+    def test_compile_error_returns_error_result(self) -> None:
+        _, question_root, submission_dir = self.make_workspace()
+        c_file = self.write_c_file(
+            submission_dir, "No0108_1.c", "not valid c code {\n"
+        )
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+        self.assertEqual(result.compile, "error")
+        self.assertEqual(result.score, 0)
+        self.assertNotEqual(result.compile_error, "")
+        self.assertEqual(result.tests_passed, 0)
+        self.assertEqual(result.tests_total, 0)
+
+    def test_compile_ok_returns_ok_result(self) -> None:
+        _, question_root, submission_dir = self.make_workspace()
+        c_file = self.write_c_file(
+            submission_dir,
+            "No0108_1.c",
+            "#include <stdio.h>\nint main(void){return 0;}\n",
+        )
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+        self.assertEqual(result.compile, "ok")
+        self.assertEqual(result.compile_error, "")
+
 
 if __name__ == "__main__":
     unittest.main()

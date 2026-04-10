@@ -136,6 +136,66 @@ class GraderTest(unittest.TestCase):
         self.assertEqual(result.tests_total, 2)
         self.assertEqual(result.score, 50)
 
+    def test_print_result_compile_ok(self) -> None:
+        result = MODULE.GradeResult(
+            filename="No0108_1.c",
+            compile="ok",
+            compile_error="",
+            tests_passed=2,
+            tests_total=3,
+            partial_score=None,
+            score=66,
+        )
+        output = StringIO()
+        with redirect_stdout(output):
+            MODULE.print_result(result)
+        text = output.getvalue()
+        self.assertIn("--- 採点結果: No0108_1.c ---", text)
+        self.assertIn("コンパイル: OK", text)
+        self.assertIn("テスト: 2/3 通過", text)
+        self.assertIn("スコア: 66点", text)
+
+    def test_print_result_compile_error(self) -> None:
+        result = MODULE.GradeResult(
+            filename="No0108_1.c",
+            compile="error",
+            compile_error="No0108_1.c:1:1: error: expected declaration\n",
+            tests_passed=0,
+            tests_total=0,
+            partial_score=None,
+            score=0,
+        )
+        output = StringIO()
+        with redirect_stdout(output):
+            MODULE.print_result(result)
+        text = output.getvalue()
+        self.assertIn("--- 採点結果: No0108_1.c ---", text)
+        self.assertIn("コンパイル: エラー", text)
+        self.assertIn("No0108_1.c:1:1: error:", text)
+        self.assertIn("スコア: 0点", text)
+
+    def test_save_result_creates_json(self) -> None:
+        _, _, submission_dir = self.make_workspace()
+        result = MODULE.GradeResult(
+            filename="No0108_1.c",
+            compile="ok",
+            compile_error="",
+            tests_passed=2,
+            tests_total=3,
+            partial_score=None,
+            score=66,
+        )
+        MODULE.save_result(result, submission_dir)
+        json_path = submission_dir / "No0108_1_grade.json"
+        self.assertTrue(json_path.exists())
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+        self.assertEqual(data["filename"], "No0108_1.c")
+        self.assertEqual(data["compile"], "ok")
+        self.assertEqual(data["tests_passed"], 2)
+        self.assertEqual(data["tests_total"], 3)
+        self.assertIsNone(data["partial_score"])
+        self.assertEqual(data["score"], 66)
+
 
 if __name__ == "__main__":
     unittest.main()

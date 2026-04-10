@@ -91,3 +91,25 @@ def grade_file(
         partial_score=None,
         score=score,
     )
+
+
+def print_result(result: GradeResult) -> None:
+    print(f"--- 採点結果: {result.filename} ---")
+    if result.compile == "error":
+        print("コンパイル: エラー")
+        if result.compile_error:
+            print(result.compile_error, end="")
+    else:
+        print("コンパイル: OK")
+        if result.tests_total > 0:
+            print(f"テスト: {result.tests_passed}/{result.tests_total} 通過")
+    print(f"スコア: {result.score}点")
+
+
+def save_result(result: GradeResult, dest_dir: Path) -> None:
+    stem = Path(result.filename).stem
+    path = dest_dir / f"{stem}_grade.json"
+    path.write_text(
+        json.dumps(asdict(result), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )

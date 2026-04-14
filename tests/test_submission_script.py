@@ -118,6 +118,23 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertTrue((submission_root / "No0108_2.c").is_file())
         self.assertFalse((submission_root / "No0108_3.c").exists())
 
+    def test_process_submission_shows_grade_result(self) -> None:
+        assignment_dir, question_root, submission_root = self.make_workspace()
+        submission_root.mkdir()
+        (assignment_dir / "No0108_1.c").write_text(
+            "#include <stdio.h>\nint main(void){return 0;}\n",
+            encoding="utf-8",
+        )
+        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
+
+        exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("採点結果", output)
+        self.assertIn("コンパイル: OK", output)
+        self.assertIn("スコア: 0点", output)  # テストケースなしのため 0点
+        self.assertTrue((submission_root / "No0108_1_grade.json").exists())
+
     def test_process_submission_overwrites_existing_submission(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         submission_root.mkdir()

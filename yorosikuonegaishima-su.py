@@ -8,6 +8,11 @@ from pathlib import Path
 import shutil
 import sys
 
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+import grader
+
 
 __version__ = "1.0.0"
 
@@ -80,6 +85,10 @@ def process_submission(
             shutil.copy2(source_path, destination_path)
             print(f"{source_path.name}: 新規に提出しました。")
         accepted_count += 1
+
+        result = grader.grade_file(destination_path, question_root, assignment_name)
+        grader.print_result(result)
+        grader.save_result(result, destination_path.parent)
 
     if accepted_count == 0:
         print("受理されたファイルはありませんでした。")

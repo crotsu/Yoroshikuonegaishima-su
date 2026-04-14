@@ -51,14 +51,19 @@ def check_assignments(user: str, question_root: Path, submission_base: Path) -> 
             filepath = submission_base / user / dir_name / filename
             total += 1
             if filepath.is_file():
-                print(f"O.K. : {filename}")
-                submitted += 1
                 stem = Path(filename).stem
                 grade_json = filepath.parent / f"{stem}_grade.json"
                 if grade_json.is_file():
                     score = json.loads(grade_json.read_text(encoding="utf-8")).get("score", 100)
-                    battle_point += point * score // 100
+                    if score > 0:
+                        print(f"O.K. : {filename}")
+                        submitted += 1
+                        battle_point += point * score // 100
+                    else:
+                        print(f"     : {filename}")
                 else:
+                    print(f"O.K. : {filename}")
+                    submitted += 1
                     battle_point += point
             else:
                 print(f"     : {filename}")

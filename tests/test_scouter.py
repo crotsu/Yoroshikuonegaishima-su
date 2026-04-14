@@ -171,6 +171,77 @@ class ScouterTest(unittest.TestCase):
         self.assertIn("0/1", output)
         self.assertIn("Battle Point=0", output)
 
+    def test_grade_json_score_100_gives_full_battle_points(self) -> None:
+        import json
+        _, question_root, submission_base = self.make_workspace()
+        (question_root / "j2pro0408.md").write_text(
+            "No0408_1.c, 100\n", encoding="utf-8"
+        )
+        submitted_dir = submission_base / "j24001" / "j2pro0408"
+        submitted_dir.mkdir(parents=True)
+        (submitted_dir / "No0408_1.c").write_text("int main(){}", encoding="utf-8")
+        (submitted_dir / "No0408_1_grade.json").write_text(
+            json.dumps({"filename": "No0408_1.c", "compile": "ok", "compile_error": "",
+                        "tests_passed": 1, "tests_total": 1, "partial_score": None, "score": 100}),
+            encoding="utf-8",
+        )
+
+        _, output = self.run_scouter("j24001", question_root, submission_base)
+
+        self.assertIn("Battle Point=100", output)
+
+    def test_grade_json_score_0_gives_zero_battle_points(self) -> None:
+        import json
+        _, question_root, submission_base = self.make_workspace()
+        (question_root / "j2pro0408.md").write_text(
+            "No0408_1.c, 100\n", encoding="utf-8"
+        )
+        submitted_dir = submission_base / "j24001" / "j2pro0408"
+        submitted_dir.mkdir(parents=True)
+        (submitted_dir / "No0408_1.c").write_text("int main(){}", encoding="utf-8")
+        (submitted_dir / "No0408_1_grade.json").write_text(
+            json.dumps({"filename": "No0408_1.c", "compile": "ok", "compile_error": "",
+                        "tests_passed": 0, "tests_total": 1, "partial_score": None, "score": 0}),
+            encoding="utf-8",
+        )
+
+        _, output = self.run_scouter("j24001", question_root, submission_base)
+
+        self.assertIn("Battle Point=0", output)
+
+    def test_grade_json_partial_score_gives_proportional_battle_points(self) -> None:
+        import json
+        _, question_root, submission_base = self.make_workspace()
+        (question_root / "j2pro0408.md").write_text(
+            "No0408_1.c, 100\n", encoding="utf-8"
+        )
+        submitted_dir = submission_base / "j24001" / "j2pro0408"
+        submitted_dir.mkdir(parents=True)
+        (submitted_dir / "No0408_1.c").write_text("int main(){}", encoding="utf-8")
+        (submitted_dir / "No0408_1_grade.json").write_text(
+            json.dumps({"filename": "No0408_1.c", "compile": "ok", "compile_error": "",
+                        "tests_passed": 1, "tests_total": 2, "partial_score": None, "score": 50}),
+            encoding="utf-8",
+        )
+
+        _, output = self.run_scouter("j24001", question_root, submission_base)
+
+        self.assertIn("Battle Point=50", output)
+
+    def test_no_grade_json_falls_back_to_full_battle_points(self) -> None:
+        _, question_root, submission_base = self.make_workspace()
+        (question_root / "j2pro0408.md").write_text(
+            "No0408_1.c, 100\n", encoding="utf-8"
+        )
+        submitted_dir = submission_base / "j24001" / "j2pro0408"
+        submitted_dir.mkdir(parents=True)
+        (submitted_dir / "No0408_1.c").write_text("int main(){}", encoding="utf-8")
+        # _grade.json は作成しない
+
+        _, output = self.run_scouter("j24001", question_root, submission_base)
+
+        self.assertIn("Battle Point=100", output)
+
 
 if __name__ == "__main__":
     unittest.main()

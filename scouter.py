@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 CONFIG_PATH = Path("/home/class/j2/prog/.send/j25/questions/config.py")
 

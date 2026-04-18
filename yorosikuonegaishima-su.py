@@ -73,6 +73,7 @@ def process_submission(
 
     accepted_count = 0
     for source_path in c_files:
+        print()
         if source_path.name not in allowed_filenames:
             print(f"{source_path.name}: 受理しません。設定ファイルに存在しないファイル名です。")
             continue
@@ -92,6 +93,19 @@ def process_submission(
 
     if accepted_count == 0:
         print("受理されたファイルはありませんでした。")
+
+    source_names = {path.name for path in c_files}
+    for filename in sorted(allowed_filenames):
+        if filename in source_names:
+            continue
+        destination_path = destination_root / filename
+        if destination_path.exists():
+            destination_path.unlink()
+            grade_json = destination_root / f"{Path(filename).stem}_grade.json"
+            if grade_json.exists():
+                grade_json.unlink()
+            print()
+            print(f"{filename}: 削除しました。")
 
     return 0
 

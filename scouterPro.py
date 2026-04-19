@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import csv
+import getpass
 import importlib.util
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 import sys
 
@@ -11,13 +12,11 @@ import sys
 __version__ = "1.1.0"
 
 CONFIG_PATH = Path("/home/class/j2/prog/.send/j25/questions/config.py")
-ROSTER_PATH = Path("/home/jstaff/oeda/tools/Yoroshikuonegaishima-su/j25.csv")
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 
 
 def _load_scouter():
-    from importlib.machinery import SourceFileLoader
     for candidate in (_SCRIPT_DIR / "scouter.py", _SCRIPT_DIR / "scouter"):
         if candidate.is_file():
             loader = SourceFileLoader("scouter", str(candidate))
@@ -40,28 +39,15 @@ def _load_config() -> object:
     return module
 
 
-def _student_to_user(student_id: str) -> str:
-    return "j" + student_id.replace("-", "")
-
-
-def _load_roster(path: Path) -> list[tuple[str, str]]:
-    if not path.is_file():
-        raise FileNotFoundError(f"{path}: 学生名簿が存在しません。")
-    students = []
-    with path.open(encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            sid = (row.get("学籍番号") or "").strip()
-            name = (row.get("氏名") or "").strip()
-            if sid:
-                students.append((sid, name))
-    return students
+def chohatten_dirs(question_root: Path, term: str) -> list[Path]:
+    """前期/後期に対応する chohatten_* ディレクトリ一覧を返す。"""
+    prefix = "chohatten_zenki" if term == "zenki" else "chohatten_kouki"
+    return [d for d in question_root.glob(f"{prefix}*") if d.is_dir()]
 
 
 def main(argv: list[str]) -> int:
     try:
         config = _load_config()
-        roster = _load_roster(ROSTER_PATH)
     except FileNotFoundError as e:
         print(e)
         return 1
@@ -74,19 +60,14 @@ def main(argv: list[str]) -> int:
         return 1
 
     term = scouter.current_term()
-    md_dirs = scouter.j2pro_dirs(question_root, term)
-
-    for sid, name in roster:
-        print(f"{sid},{name}")
-        scouter.check_assignments(
-            user=_student_to_user(sid),
-            question_root=question_root,
-            submission_base=submission_base,
-            md_dirs=md_dirs,
-        )
-        print()
-
-    return 0
+    dirs = chohatten_dirs(question_root, term)
+    user = getpass.getuser()
+    return scouter.check_assignments(
+        user=user,
+        question_root=question_root,
+        submission_base=submission_base,
+        md_dirs=dirs,
+    )
 
 
 if __name__ == "__main__":

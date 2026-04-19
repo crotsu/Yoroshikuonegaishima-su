@@ -78,7 +78,11 @@ def grade_file(
                 score=0,
             )
 
-        testcase_dir = question_root / assignment_name / stem
+        stem_dir = question_root / assignment_name / stem
+        if stem_dir.is_dir():
+            testcase_dir = stem_dir
+        else:
+            testcase_dir = question_root / assignment_name
         tests_passed, tests_total = _run_tests(exe_path, testcase_dir)
 
     score = (tests_passed * 100 // tests_total) if tests_total > 0 else 0

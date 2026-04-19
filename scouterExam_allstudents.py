@@ -12,7 +12,7 @@ import sys
 __version__ = "1.1.0"
 
 CONFIG_PATH = Path("/home/class/j2/prog/.send/j25/questions/config.py")
-ROSTER_PATH = Path(__file__).resolve().parent / "j25.csv"
+ROSTER_PATH = Path("/home/jstaff/oeda/tools/config/j25.csv")
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 

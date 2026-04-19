@@ -164,4 +164,4 @@ python scouterExam_allstudents.py
 ```
 
 - `j25.csv`（学生名簿）を読み込み、学生ごとに `学籍番号,氏名` の後に各 scouter の出力を表示する。
-- `j25.csv` は個人情報のため git 管理外（`.gitignore` に記載済み）。
+- `j25.csv` は `/home/jstaff/oeda/tools/config/j25.csv` を参照する（個人情報のため git 管理外）。

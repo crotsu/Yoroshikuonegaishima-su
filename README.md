@@ -4,7 +4,7 @@
 
 | スクリプト | 説明 |
 |-----------|------|
-| `yorosikuonegaishima-su` | 課題ディレクトリの `*.c` を提出先へコピーする提出スクリプト |
+| `yoroshikuonegaishima-su` | 課題ディレクトリの `*.c` を提出先へコピーする提出スクリプト |
 | `scouter` | 自分の課題提出状況とバトルポイントを確認するスクリプト |
 
 ---
@@ -13,9 +13,9 @@
 
 1. スクリプトを `/usr/local/bin/` にコピーして実行権限を付与する。
    ```bash
-   cp yorosikuonegaishima-su.py /usr/local/bin/yorosikuonegaishima-su
+   cp yoroshikuonegaishima-su.py /usr/local/bin/yoroshikuonegaishima-su
    cp scouter.py /usr/local/bin/scouter
-   chmod 755 /usr/local/bin/yorosikuonegaishima-su
+   chmod 755 /usr/local/bin/yoroshikuonegaishima-su
    chmod 755 /usr/local/bin/scouter
    ```
 
@@ -39,12 +39,12 @@
 
 ---
 
-## yorosikuonegaishima-su — 提出スクリプト
+## yoroshikuonegaishima-su — 提出スクリプト
 
 ### 使い方
 
 ```bash
-yorosikuonegaishima-su j2pro0408
+yoroshikuonegaishima-su j2pro0408
 ```
 
 - 課題ディレクトリ名を 1 つ指定する。
@@ -67,7 +67,7 @@ yorosikuonegaishima-su j2pro0408
 - 提出先ディレクトリ未存在: `<提出先ディレクトリ>: 提出先ディレクトリが存在しません。`
 - `.c` ファイルなし: `<課題ディレクトリ>: 送信対象の .c ファイルがありません。`
 - 受理ファイルなし: `受理されたファイルはありませんでした。`
-- 使い方エラー: `使い方: yorosikuonegaishima-su <課題ディレクトリ>`
+- 使い方エラー: `使い方: yoroshikuonegaishima-su <課題ディレクトリ>`
 
 ---
 

@@ -29,9 +29,9 @@ def _load_config() -> object:
 
 
 def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[set[str], Path]:
-    config_path = question_root / f"{assignment_name}.md"
+    config_path = question_root / assignment_name / f"{assignment_name}.md"
     if not config_path.is_file():
-        raise FileNotFoundError(f"{config_path.name}: 設定ファイルが存在しません。")
+        raise FileNotFoundError(f"{assignment_name}.md: 設定ファイルが存在しません。")
 
     allowed = {
         line.split(",")[0].strip()
@@ -48,7 +48,7 @@ def process_submission(
 ) -> int:
     if not assignment_dir.is_dir():
         print(f"{assignment_dir}: 課題ディレクトリが存在しません。")
-        print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
+        print("使い方: yoroshikuonegaishima-su <課題ディレクトリ>")
         return 1
 
     assignment_name = assignment_dir.name
@@ -56,7 +56,7 @@ def process_submission(
         allowed_filenames, _ = load_allowed_filenames(question_root, assignment_name)
     except FileNotFoundError as error:
         print(error)
-        print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
+        print("使い方: yoroshikuonegaishima-su <課題ディレクトリ>")
         return 1
 
     c_files = sorted(
@@ -80,10 +80,10 @@ def process_submission(
 
         destination_path = destination_root / source_path.name
         if destination_path.exists():
-            shutil.copy2(source_path, destination_path)
+            shutil.copy(source_path, destination_path)
             print(f"{source_path.name}: 上書きしました。")
         else:
-            shutil.copy2(source_path, destination_path)
+            shutil.copy(source_path, destination_path)
             print(f"{source_path.name}: 新規に提出しました。")
         accepted_count += 1
 
@@ -116,7 +116,7 @@ def main(argv: list[str]) -> int:
         return 0
 
     if len(argv) != 2:
-        print("使い方: yorosikuonegaishima-su <課題ディレクトリ>")
+        print("使い方: yoroshikuonegaishima-su <課題ディレクトリ>")
         return 1
 
     assignment_dir = Path(argv[1])

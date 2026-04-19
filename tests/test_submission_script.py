@@ -8,11 +8,17 @@ import tempfile
 import unittest
 
 
-SCRIPT_PATH = Path(__file__).resolve().parent.parent / "yorosikuonegaishima-su.py"
+SCRIPT_PATH = Path(__file__).resolve().parent.parent / "yoroshikuonegaishima-su.py"
 SPEC = importlib.util.spec_from_file_location("submission_script", SCRIPT_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
+
+
+def _write_md(question_root: Path, name: str, data: str, encoding: str = "utf-8") -> None:
+    d = question_root / name
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{name}.md").write_text(data, encoding=encoding)
 
 
 class SubmissionScriptTest(unittest.TestCase):
@@ -42,7 +48,7 @@ class SubmissionScriptTest(unittest.TestCase):
     def test_main_prints_version(self) -> None:
         output = StringIO()
         with redirect_stdout(output):
-            exit_code = MODULE.main(["yorosikuonegaishima-su", "--version"])
+            exit_code = MODULE.main(["yoroshikuonegaishima-su", "--version"])
 
         self.assertEqual(exit_code, 0)
         self.assertIn(MODULE.__version__, output.getvalue())
@@ -50,10 +56,10 @@ class SubmissionScriptTest(unittest.TestCase):
     def test_main_returns_usage_error_for_invalid_arguments(self) -> None:
         output = StringIO()
         with redirect_stdout(output):
-            exit_code = MODULE.main(["yorosikuonegaishima-su.py"])
+            exit_code = MODULE.main(["yoroshikuonegaishima-su.py"])
 
         self.assertEqual(exit_code, 1)
-        self.assertIn("使い方: yorosikuonegaishima-su <課題ディレクトリ>", output.getvalue())
+        self.assertIn("使い方: yoroshikuonegaishima-su <課題ディレクトリ>", output.getvalue())
 
     def test_process_submission_reports_missing_assignment_directory(self) -> None:
         _, question_root, submission_root = self.make_workspace()
@@ -65,7 +71,7 @@ class SubmissionScriptTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("課題ディレクトリが存在しません。", output.getvalue())
-        self.assertIn("使い方: yorosikuonegaishima-su <課題ディレクトリ>", output.getvalue())
+        self.assertIn("使い方: yoroshikuonegaishima-su <課題ディレクトリ>", output.getvalue())
 
     def test_process_submission_reports_missing_config_file(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
@@ -74,12 +80,12 @@ class SubmissionScriptTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("設定ファイルが存在しません。", output)
-        self.assertIn("使い方: yorosikuonegaishima-su <課題ディレクトリ>", output)
+        self.assertIn("使い方: yoroshikuonegaishima-su <課題ディレクトリ>", output)
 
     def test_process_submission_reports_when_no_c_files_exist(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         (assignment_dir / "memo.txt").write_text("ignore\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
+        _write_md(question_root, "j2pro0108", "No0108_1.c, 100\n", encoding="utf-8")
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
 
@@ -90,7 +96,7 @@ class SubmissionScriptTest(unittest.TestCase):
     def test_process_submission_reports_missing_submission_directory(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         (assignment_dir / "No0108_1.c").write_text("int main(void){return 0;}\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
+        _write_md(question_root, "j2pro0108", "No0108_1.c, 100\n", encoding="utf-8")
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
 
@@ -104,7 +110,7 @@ class SubmissionScriptTest(unittest.TestCase):
         (assignment_dir / "No0108_2.c").write_text("int main(void){return 1;}\n", encoding="utf-8")
         (assignment_dir / "No0108_3.c").write_text("int main(void){return 2;}\n", encoding="utf-8")
         (assignment_dir / "note.txt").write_text("ignored\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text(
+        _write_md(question_root, "j2pro0108", 
             "No0108_1.c, 100\nNo0108_2.c, 200\n", encoding="utf-8"
         )
 
@@ -125,7 +131,7 @@ class SubmissionScriptTest(unittest.TestCase):
             "#include <stdio.h>\nint main(void){return 0;}\n",
             encoding="utf-8",
         )
-        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
+        _write_md(question_root, "j2pro0108", "No0108_1.c, 100\n", encoding="utf-8")
 
         exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
 
@@ -140,7 +146,7 @@ class SubmissionScriptTest(unittest.TestCase):
         submission_root.mkdir()
         source_file = assignment_dir / "No0108_1.c"
         source_file.write_text("first\n", encoding="utf-8")
-        (question_root / "j2pro0108.md").write_text("No0108_1.c, 100\n", encoding="utf-8")
+        _write_md(question_root, "j2pro0108", "No0108_1.c, 100\n", encoding="utf-8")
 
         first_exit_code, first_output = self.run_submission(
             assignment_dir, question_root, submission_root

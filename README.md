@@ -18,6 +18,7 @@
 | `scouter_allstudents.py` | 全学生の基本問題提出状況を一覧表示する |
 | `scouterPro_allstudents.py` | 全学生の応用問題提出状況を一覧表示する |
 | `scouterExam_allstudents.py` | 全学生の試験提出状況を一覧表示する |
+| `get_j2exam.py` | 全学生のホームから試験ディレクトリを回収する（root で実行） |
 
 ---
 
@@ -176,3 +177,19 @@ python scouterExam_allstudents.py
 
 - `j25.csv`（学生名簿）を読み込み、学生ごとに `学籍番号,氏名` の後に各 scouter の出力を表示する。
 - `j25.csv` は `/home/jstaff/oeda/tools/config/j25.csv` を参照する（個人情報のため git 管理外）。
+
+### get_j2exam.py — 試験ディレクトリの回収
+
+```bash
+sudo python3 get_j2exam.py 0611
+```
+
+- 名簿の全学生について、`/home/jstudent/<j学籍>/J2program/j2exam0611` をカレントディレクトリの `./j2exam0611/<j学籍>/` へ中身ごとコピーする。
+- 学生ホームは本人のみアクセス可（`drwx------`）のため **root（sudo）で実行**する。
+- ディレクトリが無い学生はコピーせずに知らせる。
+
+```
+j25401 コピー完了
+j25402 コピー完了
+j25403 j2exam0611がない
+```

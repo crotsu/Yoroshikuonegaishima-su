@@ -97,7 +97,7 @@ class GraderTest(unittest.TestCase):
         self.assertEqual(result.compile, "ok")
         self.assertEqual(result.tests_passed, 0)
         self.assertEqual(result.tests_total, 0)
-        self.assertEqual(result.score, 0)
+        self.assertEqual(result.score, 100)  # テストケースがなければコンパイル成功で受領
 
     def test_all_tests_pass(self) -> None:
         _, question_root, submission_dir = self.make_workspace()
@@ -154,6 +154,24 @@ class GraderTest(unittest.TestCase):
         self.assertIn("コンパイル: OK", text)
         self.assertIn("テスト: 2/3 通過", text)
         self.assertIn("スコア: 66点", text)
+
+    def test_print_result_compile_ok_no_testcases(self) -> None:
+        result = MODULE.GradeResult(
+            filename="No0108_1.c",
+            compile="ok",
+            compile_error="",
+            tests_passed=0,
+            tests_total=0,
+            partial_score=None,
+            score=100,
+        )
+        output = StringIO()
+        with redirect_stdout(output):
+            MODULE.print_result(result)
+        text = output.getvalue()
+        self.assertIn("コンパイル: OK", text)
+        self.assertNotIn("スコア", text)  # テストケースなしのときはスコアを表示しない
+        self.assertNotIn("テスト:", text)
 
     def test_print_result_compile_error(self) -> None:
         result = MODULE.GradeResult(

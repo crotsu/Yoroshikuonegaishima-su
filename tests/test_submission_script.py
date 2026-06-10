@@ -171,7 +171,7 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertIn("採点結果", output)
         self.assertIn("コンパイル: OK", output)
-        self.assertIn("スコア: 0点", output)  # テストケースなしのため 0点
+        self.assertNotIn("スコア", output)  # テストケースなしのときはスコアを表示しない
         self.assertTrue((submission_root / "No0108_1_grade.json").exists())
 
     def test_process_submission_overwrites_existing_submission(self) -> None:

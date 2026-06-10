@@ -85,7 +85,8 @@ def grade_file(
             testcase_dir = question_root / assignment_name
         tests_passed, tests_total = _run_tests(exe_path, testcase_dir)
 
-    score = (tests_passed * 100 // tests_total) if tests_total > 0 else 0
+    # テストケースがない設問はコンパイル成功で受領する
+    score = (tests_passed * 100 // tests_total) if tests_total > 0 else 100
     return GradeResult(
         filename=filename,
         compile="ok",
@@ -103,11 +104,13 @@ def print_result(result: GradeResult) -> None:
         print("コンパイル: エラー")
         if result.compile_error:
             print(result.compile_error, end="")
+        print(f"スコア: {result.score}点")
     else:
         print("コンパイル: OK")
+        # テストケースがない設問はスコアを表示しない（コンパイル成功で受領）
         if result.tests_total > 0:
             print(f"テスト: {result.tests_passed}/{result.tests_total} 通過")
-    print(f"スコア: {result.score}点")
+            print(f"スコア: {result.score}点")
 
 
 def save_result(result: GradeResult, dest_dir: Path) -> None:

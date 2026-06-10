@@ -174,6 +174,30 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertNotIn("スコア", output)  # テストケースなしのときはスコアを表示しない
         self.assertTrue((submission_root / "No0108_1_grade.json").exists())
 
+    def test_process_submission_exam_mode_hides_grade_result(self) -> None:
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        root = Path(temp_dir.name)
+        assignment_dir = root / "j2exam0611"
+        question_root = root / "question"
+        submission_root = root / "submissions"
+        assignment_dir.mkdir()
+        question_root.mkdir()
+        submission_root.mkdir()
+        (assignment_dir / "No0611_1.c").write_text(
+            "#include <stdio.h>\nint main(void){return 0;}\n", encoding="utf-8"
+        )
+        _write_md(question_root, "j2exam0611", "No0611_1.c, 100\n", encoding="utf-8")
+
+        exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("No0611_1.c: 新規に提出しました。", output)  # 受領の確認は表示する
+        self.assertNotIn("採点結果", output)  # 試験では採点結果を見せない
+        self.assertNotIn("コンパイル", output)
+        self.assertTrue((submission_root / "No0611_1.c").is_file())  # ファイルは受領
+        self.assertFalse((submission_root / "No0611_1_grade.json").exists())  # 採点しない
+
     def test_process_submission_overwrites_existing_submission(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
         submission_root.mkdir()

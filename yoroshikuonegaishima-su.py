@@ -52,6 +52,8 @@ def process_submission(
         return 1
 
     assignment_name = assignment_dir.name
+    # ディレクトリ名に exam を含む試験は採点結果を表示しない
+    is_exam = "exam" in assignment_name
     try:
         allowed_filenames, _ = load_allowed_filenames(question_root, assignment_name)
     except FileNotFoundError as error:
@@ -86,9 +88,10 @@ def process_submission(
             print(f"{source_path.name}: 新規に提出しました。")
         accepted_count += 1
 
-        result = grader.grade_file(destination_path, question_root, assignment_name)
-        grader.print_result(result)
-        grader.save_result(result, destination_path.parent)
+        if not is_exam:
+            result = grader.grade_file(destination_path, question_root, assignment_name)
+            grader.print_result(result)
+            grader.save_result(result, destination_path.parent)
 
     if accepted_count == 0:
         print("受理されたファイルはありませんでした。")

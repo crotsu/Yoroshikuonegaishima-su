@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from contextlib import redirect_stdout
 from io import StringIO
+import getpass
 import importlib.util
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -53,13 +55,44 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertIn(MODULE.__version__, output.getvalue())
 
-    def test_main_returns_usage_error_for_invalid_arguments(self) -> None:
+    def test_main_returns_usage_error_for_too_many_arguments(self) -> None:
         output = StringIO()
         with redirect_stdout(output):
-            exit_code = MODULE.main(["yoroshikuonegaishima-su.py"])
+            exit_code = MODULE.main(["yoroshikuonegaishima-su.py", "dir1", "dir2"])
 
         self.assertEqual(exit_code, 1)
-        self.assertIn("使い方: yoroshikuonegaishima-su <課題ディレクトリ>", output.getvalue())
+        self.assertIn("使い方: yoroshikuonegaishima-su [課題ディレクトリ]", output.getvalue())
+
+    def test_main_uses_current_directory_when_no_argument(self) -> None:
+        assignment_dir, question_root, _ = self.make_workspace()
+        root = assignment_dir.parent
+        submission_base = root / "sub"
+        submission_root = submission_base / getpass.getuser() / assignment_dir.name
+        submission_root.mkdir(parents=True)
+        (assignment_dir / "No0108_1.c").write_text(
+            "#include <stdio.h>\nint main(void){return 0;}\n", encoding="utf-8"
+        )
+        _write_md(question_root, "j2pro0108", "No0108_1.c, 100\n", encoding="utf-8")
+
+        class FakeConfig:
+            QUESTION_ROOT = str(question_root)
+            SUBMISSION_BASE = str(submission_base)
+
+        original_load = MODULE._load_config
+        original_cwd = Path.cwd()
+        MODULE._load_config = lambda: FakeConfig
+        try:
+            os.chdir(assignment_dir)
+            output = StringIO()
+            with redirect_stdout(output):
+                exit_code = MODULE.main(["yoroshikuonegaishima-su.py"])
+        finally:
+            os.chdir(original_cwd)
+            MODULE._load_config = original_load
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("No0108_1.c: 新規に提出しました。", output.getvalue())
+        self.assertTrue((submission_root / "No0108_1.c").is_file())
 
     def test_process_submission_reports_missing_assignment_directory(self) -> None:
         _, question_root, submission_root = self.make_workspace()
@@ -71,7 +104,7 @@ class SubmissionScriptTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("課題ディレクトリが存在しません。", output.getvalue())
-        self.assertIn("使い方: yoroshikuonegaishima-su <課題ディレクトリ>", output.getvalue())
+        self.assertIn("使い方: yoroshikuonegaishima-su [課題ディレクトリ]", output.getvalue())
 
     def test_process_submission_reports_missing_config_file(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()
@@ -80,7 +113,7 @@ class SubmissionScriptTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("設定ファイルが存在しません。", output)
-        self.assertIn("使い方: yoroshikuonegaishima-su <課題ディレクトリ>", output)
+        self.assertIn("使い方: yoroshikuonegaishima-su [課題ディレクトリ]", output)
 
     def test_process_submission_reports_when_no_c_files_exist(self) -> None:
         assignment_dir, question_root, submission_root = self.make_workspace()

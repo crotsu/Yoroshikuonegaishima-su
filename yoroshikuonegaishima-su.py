@@ -48,7 +48,7 @@ def process_submission(
 ) -> int:
     if not assignment_dir.is_dir():
         print(f"{assignment_dir}: 課題ディレクトリが存在しません。")
-        print("使い方: yoroshikuonegaishima-su <課題ディレクトリ>")
+        print("使い方: yoroshikuonegaishima-su [課題ディレクトリ]")
         return 1
 
     assignment_name = assignment_dir.name
@@ -56,7 +56,7 @@ def process_submission(
         allowed_filenames, _ = load_allowed_filenames(question_root, assignment_name)
     except FileNotFoundError as error:
         print(error)
-        print("使い方: yoroshikuonegaishima-su <課題ディレクトリ>")
+        print("使い方: yoroshikuonegaishima-su [課題ディレクトリ]")
         return 1
 
     c_files = sorted(
@@ -114,11 +114,11 @@ def main(argv: list[str]) -> int:
         print(__version__)
         return 0
 
-    if len(argv) != 2:
-        print("使い方: yoroshikuonegaishima-su <課題ディレクトリ>")
+    if len(argv) > 2:
+        print("使い方: yoroshikuonegaishima-su [課題ディレクトリ]")
         return 1
 
-    assignment_dir = Path(argv[1])
+    assignment_dir = Path(argv[1]) if len(argv) == 2 else Path.cwd()
     config = _load_config()
     try:
         question_root = Path(config.QUESTION_ROOT)

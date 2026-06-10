@@ -14,7 +14,7 @@ __version__ = "1.1.0"
 CONFIG_PATH = Path("/home/class/j2/prog/.send/j25/questions/config.py")
 
 # 対象試験日を手動で編集する（例: "0601" → j2exam0601）
-EXAM_DATE = "0601"
+EXAM_DATE = "0611"
 
 
 def _load_config() -> object:

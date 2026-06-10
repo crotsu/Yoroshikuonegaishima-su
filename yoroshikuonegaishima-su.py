@@ -33,11 +33,16 @@ def load_allowed_filenames(question_root: Path, assignment_name: str) -> tuple[s
     if not config_path.is_file():
         raise FileNotFoundError(f"{assignment_name}.md: 設定ファイルが存在しません。")
 
-    allowed = {
-        line.split(",")[0].strip()
-        for line in config_path.read_text(encoding="utf-8").splitlines()
-        if "," in line
-    }
+    # ファイル名だけの行（No1.c）も、点数付きの行（No1.c, 100）も受け付ける。
+    # 空行と # で始まる行は無視する。
+    allowed = set()
+    for line in config_path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        filename = stripped.split(",")[0].strip()
+        if filename:
+            allowed.add(filename)
     return allowed, config_path
 
 

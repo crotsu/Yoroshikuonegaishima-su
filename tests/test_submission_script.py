@@ -174,6 +174,22 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertNotIn("スコア", output)  # テストケースなしのときはスコアを表示しない
         self.assertTrue((submission_root / "No0108_1_grade.json").exists())
 
+    def test_process_submission_accepts_filename_only_md(self) -> None:
+        # 点数なし・ファイル名だけの .md（試験で使う形式）でも受理できる
+        assignment_dir, question_root, submission_root = self.make_workspace()
+        submission_root.mkdir()
+        (assignment_dir / "No0108_1.c").write_text(
+            "#include <stdio.h>\nint main(void){return 0;}\n", encoding="utf-8"
+        )
+        _write_md(question_root, "j2pro0108", "No0108_1.c\nNo0108_2.c\n", encoding="utf-8")
+
+        exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("No0108_1.c: 新規に提出しました。", output)
+        self.assertNotIn("受理されたファイルはありませんでした。", output)
+        self.assertTrue((submission_root / "No0108_1.c").is_file())
+
     def test_process_submission_exam_mode_hides_grade_result(self) -> None:
         temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(temp_dir.cleanup)

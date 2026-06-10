@@ -84,20 +84,20 @@ def check_assignments(
                 if grade_json.is_file():
                     score = json.loads(grade_json.read_text(encoding="utf-8")).get("score", 100)
                     if score > 0:
-                        print(f"O.K.   : {filename} ({mtime})")
+                        print(f"O.K.    : {filename} ({mtime})")
                         submitted += 1
                         battle_point += point * score // 100
                     else:
-                        print(f"N.G.   : {filename} ({mtime})")
+                        print(f"[error] : {filename} ({mtime})")
                 else:
-                    print(f"O.K.   : {filename} ({mtime})")
+                    print(f"O.K.    : {filename} ({mtime})")
                     submitted += 1
                     battle_point += point
             else:
-                print(f"未提出 : {filename}")
+                print(f"未提出  : {filename}")
 
     print(f"{submitted}/{total}")
-    print(f"Battle Point={battle_point}")
+    print(f"Battle Point = {battle_point}")
     return 0
 
 

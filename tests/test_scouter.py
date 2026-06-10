@@ -58,7 +58,7 @@ class ScouterTest(unittest.TestCase):
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertIn("0/0", output)
-        self.assertIn("Battle Point=0", output)
+        self.assertIn("Battle Point = 0", output)
 
     def test_all_unsubmitted(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -69,10 +69,10 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("未提出 : No0408_1.c", output)
-        self.assertIn("未提出 : No0408_2.c", output)
+        self.assertIn("未提出  : No0408_1.c", output)
+        self.assertIn("未提出  : No0408_2.c", output)
         self.assertIn("0/2", output)
-        self.assertIn("Battle Point=0", output)
+        self.assertIn("Battle Point = 0", output)
 
     def test_some_submitted(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -86,10 +86,10 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("O.K.   : No0408_1.c", output)
-        self.assertIn("未提出 : No0408_2.c", output)
+        self.assertIn("O.K.    : No0408_1.c", output)
+        self.assertIn("未提出  : No0408_2.c", output)
         self.assertIn("1/2", output)
-        self.assertIn("Battle Point=123", output)
+        self.assertIn("Battle Point = 123", output)
 
     def test_all_submitted(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -104,10 +104,10 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("O.K.   : No0408_1.c", output)
-        self.assertIn("O.K.   : No0408_2.c", output)
+        self.assertIn("O.K.    : No0408_1.c", output)
+        self.assertIn("O.K.    : No0408_2.c", output)
         self.assertIn("2/2", output)
-        self.assertIn("Battle Point=1374", output)
+        self.assertIn("Battle Point = 1374", output)
 
     def test_multiple_md_files_processed_in_order(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -124,10 +124,10 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("未提出 : No0408_1.c", output)
-        self.assertIn("O.K.   : No0415_1.c", output)
+        self.assertIn("未提出  : No0408_1.c", output)
+        self.assertIn("O.K.    : No0415_1.c", output)
         self.assertIn("1/2", output)
-        self.assertIn("Battle Point=200", output)
+        self.assertIn("Battle Point = 200", output)
         self.assertLess(output.index("No0408_1.c"), output.index("No0415_1.c"))
 
     def test_md_file_ignores_blank_lines(self) -> None:
@@ -174,9 +174,9 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("未提出 : No0408_1.c", output)
+        self.assertIn("未提出  : No0408_1.c", output)
         self.assertIn("0/1", output)
-        self.assertIn("Battle Point=0", output)
+        self.assertIn("Battle Point = 0", output)
 
     def test_grade_json_score_100_gives_full_battle_points(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -194,7 +194,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("Battle Point=100", output)
+        self.assertIn("Battle Point = 100", output)
 
     def test_grade_json_score_0_gives_zero_battle_points(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -212,7 +212,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("Battle Point=0", output)
+        self.assertIn("Battle Point = 0", output)
 
     def test_grade_json_partial_score_gives_proportional_battle_points(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -230,7 +230,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("Battle Point=50", output)
+        self.assertIn("Battle Point = 50", output)
 
     def test_no_grade_json_falls_back_to_full_battle_points(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -243,7 +243,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("Battle Point=100", output)
+        self.assertIn("Battle Point = 100", output)
 
     def test_grade_json_score_0_shows_ng(self) -> None:
         _, question_root, submission_base = self.make_workspace()
@@ -259,7 +259,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("N.G.   : No0408_1.c", output)
+        self.assertIn("[error] : No0408_1.c", output)
         self.assertNotIn("O.K.", output)
         self.assertNotIn("未提出", output)
         self.assertIn("0/1", output)
@@ -278,7 +278,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("O.K.   : No0408_1.c", output)
+        self.assertIn("O.K.    : No0408_1.c", output)
         self.assertIn("1/1", output)
 
 

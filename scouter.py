@@ -88,13 +88,13 @@ def check_assignments(
                         submitted += 1
                         battle_point += point * score // 100
                     else:
-                        print(f"     : {filename}")
+                        print(f"N.G. : {filename} ({mtime})")
                 else:
                     print(f"O.K. : {filename} ({mtime})")
                     submitted += 1
                     battle_point += point
             else:
-                print(f"     : {filename}")
+                print(f"未提出 : {filename}")
 
     print(f"{submitted}/{total}")
     print(f"Battle Point={battle_point}")

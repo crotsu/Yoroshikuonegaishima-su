@@ -188,7 +188,7 @@ class GraderTest(unittest.TestCase):
             MODULE.print_result(result)
         text = output.getvalue()
         self.assertIn("--- 採点結果: No0108_1.c ---", text)
-        self.assertIn("コンパイル: エラー", text)
+        self.assertIn("コンパイル: NG", text)
         self.assertIn("No0108_1.c:1:1: error:", text)
         self.assertIn("スコア: 0点", text)
 

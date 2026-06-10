@@ -101,7 +101,7 @@ def grade_file(
 def print_result(result: GradeResult) -> None:
     print(f"--- 採点結果: {result.filename} ---")
     if result.compile == "error":
-        print("コンパイル: エラー")
+        print("コンパイル: NG")
         if result.compile_error:
             print(result.compile_error, end="")
         print(f"スコア: {result.score}点")

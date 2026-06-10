@@ -58,7 +58,7 @@ def check_exam(user: str, question_root: Path, submission_base: Path, exam_date:
             print(f"O.K. : {filename} ({mtime})")
             submitted += 1
         else:
-            print(f"     : {filename}")
+            print(f"未提出 : {filename}")
 
     print(f"{submitted}/{total}")
     return 0

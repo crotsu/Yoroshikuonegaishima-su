@@ -73,11 +73,10 @@ def process_submission(
 
     accepted_count = 0
     for source_path in c_files:
-        print()
         if source_path.name not in allowed_filenames:
-            print(f"{source_path.name}: 受理しません。設定ファイルに存在しないファイル名です。")
             continue
 
+        print()
         destination_path = destination_root / source_path.name
         if destination_path.exists():
             shutil.copy(source_path, destination_path)

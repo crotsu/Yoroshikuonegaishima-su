@@ -119,7 +119,7 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertIn("No0108_1.c: 新規に提出しました。", output)
         self.assertIn("No0108_2.c: 新規に提出しました。", output)
-        self.assertIn("No0108_3.c: 受理しません。設定ファイルに存在しないファイル名です。", output)
+        self.assertNotIn("No0108_3.c", output)
         self.assertTrue((submission_root / "No0108_1.c").is_file())
         self.assertTrue((submission_root / "No0108_2.c").is_file())
         self.assertFalse((submission_root / "No0108_3.c").exists())

@@ -27,11 +27,17 @@ def _load_config() -> object:
 
 
 def _parse_md(md_path: Path) -> list[str]:
+    """試験定義ファイルからファイル名一覧を返す。
+
+    ``No1.c`` のようにファイル名だけの行も、``No1.c, 100`` のように
+    点数付きの行も受け付ける（点数は使わない）。空行と # で始まる行は無視する。
+    """
     filenames = []
     for line in md_path.read_text(encoding="utf-8").splitlines():
-        if "," not in line:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
             continue
-        filename = line.split(",")[0].strip()
+        filename = stripped.split(",")[0].strip()
         if filename:
             filenames.append(filename)
     return filenames

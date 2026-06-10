@@ -55,7 +55,7 @@ def check_exam(user: str, question_root: Path, submission_base: Path, exam_date:
         filepath = submission_base / user / dir_name / filename
         if filepath.is_file():
             mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
-            print(f"O.K. : {filename} ({mtime})")
+            print(f"O.K.   : {filename} ({mtime})")
             submitted += 1
         else:
             print(f"未提出 : {filename}")

@@ -86,7 +86,7 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("O.K. : No0408_1.c", output)
+        self.assertIn("O.K.   : No0408_1.c", output)
         self.assertIn("未提出 : No0408_2.c", output)
         self.assertIn("1/2", output)
         self.assertIn("Battle Point=123", output)
@@ -104,8 +104,8 @@ class ScouterTest(unittest.TestCase):
         exit_code, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("O.K. : No0408_1.c", output)
-        self.assertIn("O.K. : No0408_2.c", output)
+        self.assertIn("O.K.   : No0408_1.c", output)
+        self.assertIn("O.K.   : No0408_2.c", output)
         self.assertIn("2/2", output)
         self.assertIn("Battle Point=1374", output)
 
@@ -125,7 +125,7 @@ class ScouterTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertIn("未提出 : No0408_1.c", output)
-        self.assertIn("O.K. : No0415_1.c", output)
+        self.assertIn("O.K.   : No0415_1.c", output)
         self.assertIn("1/2", output)
         self.assertIn("Battle Point=200", output)
         self.assertLess(output.index("No0408_1.c"), output.index("No0415_1.c"))
@@ -259,7 +259,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("N.G. : No0408_1.c", output)
+        self.assertIn("N.G.   : No0408_1.c", output)
         self.assertNotIn("O.K.", output)
         self.assertNotIn("未提出", output)
         self.assertIn("0/1", output)
@@ -278,7 +278,7 @@ class ScouterTest(unittest.TestCase):
 
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
-        self.assertIn("O.K. : No0408_1.c", output)
+        self.assertIn("O.K.   : No0408_1.c", output)
         self.assertIn("1/1", output)
 
 

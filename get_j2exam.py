@@ -48,7 +48,13 @@ def collect_exam(
         user = _student_to_user(sid)
         src = student_home_base / user / PROGRAM_SUBDIR / exam_dir
         dst = dest_base / exam_dir / user
-        if not src.is_dir():
+        # is_dir() は権限拒否(EACCES)を例外として投げる。1人で止まらないよう捕捉する。
+        try:
+            exists = src.is_dir()
+        except OSError as e:
+            print(f"{user} アクセスできません: {e}")
+            continue
+        if not exists:
             print(f"{user} {exam_dir}がない")
             continue
         try:

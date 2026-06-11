@@ -84,6 +84,26 @@ class GetJ2examTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("j25401 コピー完了", out)
 
+    def test_inaccessible_dir_does_not_crash(self) -> None:
+        # 権限で読めない学生がいても、クラッシュせず次に進む
+        student_home, dest = self.make_workspace()
+        # アクセスできる学生（コピーされる）
+        self.put_exam(student_home, "j25402", "0611", {"No1.c": "ok"})
+        # 読めない学生（J2program を 000 にして権限拒否を作る）
+        blocked = student_home / "j25401" / "J2program"
+        blocked.mkdir(parents=True)
+        (blocked / "j2exam0611").mkdir()
+        blocked.chmod(0o000)
+        self.addCleanup(lambda: blocked.chmod(0o755))
+        roster = [("25-401", ""), ("25-402", "")]
+
+        code, out = self.run_collect("0611", roster, student_home, dest)
+
+        self.assertEqual(code, 0)  # クラッシュしない
+        self.assertIn("j25401", out)  # 読めない学生も何か知らせる
+        self.assertIn("j25402 コピー完了", out)  # 後続の学生は処理される
+        self.assertTrue((dest / "j2exam0611" / "j25402" / "No1.c").is_file())
+
     def test_missing_message_uses_exam_dir_name(self) -> None:
         student_home, dest = self.make_workspace()
         roster = [("25-403", "")]

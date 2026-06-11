@@ -174,6 +174,24 @@ class SubmissionScriptTest(unittest.TestCase):
         self.assertNotIn("スコア", output)  # テストケースなしのときはスコアを表示しない
         self.assertTrue((submission_root / "No0108_1_grade.json").exists())
 
+    def test_process_submission_handles_permission_error(self) -> None:
+        # 設問ディレクトリが権限で読めなくても、クラッシュせず分かりやすく終了する
+        if os.geteuid() == 0:
+            self.skipTest("root はパーミッションを無視するため")
+        assignment_dir, question_root, submission_root = self.make_workspace()
+        submission_root.mkdir()
+        (assignment_dir / "No0108_1.c").write_text("int main(void){return 0;}\n", encoding="utf-8")
+        md_dir = question_root / "j2pro0108"
+        md_dir.mkdir(parents=True)
+        (md_dir / "j2pro0108.md").write_text("No0108_1.c\n", encoding="utf-8")
+        md_dir.chmod(0o000)  # 学生から見えない状態を再現
+        self.addCleanup(lambda: md_dir.chmod(0o755))
+
+        exit_code, output = self.run_submission(assignment_dir, question_root, submission_root)
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("権限", output)  # PermissionError ではなくメッセージ
+
     def test_process_submission_accepts_filename_only_md(self) -> None:
         # 点数なし・ファイル名だけの .md（試験で使う形式）でも受理できる
         assignment_dir, question_root, submission_root = self.make_workspace()

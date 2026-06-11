@@ -65,6 +65,9 @@ def process_submission(
         print(error)
         print("使い方: yoroshikuonegaishima-su [課題ディレクトリ]")
         return 1
+    except PermissionError:
+        print(f"{assignment_name}.md: 設定ファイルにアクセスできません（権限）。担当教員に連絡してください。")
+        return 1
 
     c_files = sorted(
         path for path in assignment_dir.iterdir() if path.is_file() and path.suffix == ".c"

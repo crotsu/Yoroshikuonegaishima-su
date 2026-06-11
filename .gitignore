@@ -1,3 +1,5 @@
 config.py
 __pycache__/
 j25.csv
+# get_j2exam.py が回収した学生データ（個人情報のためコミットしない）
+/j2exam*/

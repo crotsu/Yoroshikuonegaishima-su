@@ -58,7 +58,8 @@ def collect_exam(
             print(f"{user} {exam_dir}がない")
             continue
         try:
-            shutil.copytree(src, dst, dirs_exist_ok=True)
+            # Emacs のロックファイル等の壊れたシンボリックリンクは無視する
+            shutil.copytree(src, dst, dirs_exist_ok=True, ignore_dangling_symlinks=True)
         except OSError as e:
             print(f"{user} コピー失敗: {e}")
             continue

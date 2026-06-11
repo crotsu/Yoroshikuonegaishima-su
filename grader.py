@@ -20,8 +20,15 @@ class GradeResult:
 
 
 def _run_tests(exe_path: Path, testcase_dir: Path) -> tuple[int, int]:
-    """テストケースを実行して (passed, total) を返す。"""
-    if not testcase_dir.is_dir():
+    """テストケースを実行して (passed, total) を返す。
+
+    テストケースが権限などで読めない場合（学生から秘匿されている場合など）は、
+    クラッシュせずテストケース無し (0, 0) として扱う。
+    """
+    try:
+        if not testcase_dir.is_dir():
+            return 0, 0
+    except OSError:
         return 0, 0
 
     passed = 0
@@ -30,18 +37,22 @@ def _run_tests(exe_path: Path, testcase_dir: Path) -> tuple[int, int]:
     while True:
         in_file = testcase_dir / f"sample-{n}.txt"
         out_file = testcase_dir / f"sample-{n}-out.txt"
-        if not in_file.exists() or not out_file.exists():
-            break
+        try:
+            if not in_file.exists() or not out_file.exists():
+                break
+            input_text = in_file.read_text(encoding="utf-8")
+            expected = out_file.read_text(encoding="utf-8").strip()
+        except OSError:
+            break  # 権限等でアクセスできない → テストケース無し扱い
         total += 1
         try:
             proc = subprocess.run(
                 [str(exe_path)],
-                input=in_file.read_text(encoding="utf-8"),
+                input=input_text,
                 capture_output=True,
                 text=True,
                 timeout=10,
             )
-            expected = out_file.read_text(encoding="utf-8").strip()
             if proc.stdout.strip() == expected:
                 passed += 1
         except subprocess.TimeoutExpired:

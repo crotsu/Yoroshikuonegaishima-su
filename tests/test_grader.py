@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -98,6 +99,28 @@ class GraderTest(unittest.TestCase):
         self.assertEqual(result.tests_passed, 0)
         self.assertEqual(result.tests_total, 0)
         self.assertEqual(result.score, 100)  # テストケースがなければコンパイル成功で受領
+
+    def test_inaccessible_testcases_treated_as_none(self) -> None:
+        # テストケースが権限で読めない場合、クラッシュせずテスト無し(score=100)とする
+        if os.geteuid() == 0:
+            self.skipTest("root はパーミッションを無視するため")
+        _, question_root, submission_dir = self.make_workspace()
+        c_file = self.write_c_file(
+            submission_dir,
+            "No0108_1.c",
+            "#include <stdio.h>\nint main(void){return 0;}\n",
+        )
+        tc_dir = self.make_testcase_dir(question_root, "j2pro0108", "No0108_1")
+        (tc_dir / "sample-1.txt").write_text("5\n", encoding="utf-8")
+        (tc_dir / "sample-1-out.txt").write_text("10\n", encoding="utf-8")
+        tc_dir.chmod(0o000)  # 学生から見えない状態を再現
+        self.addCleanup(lambda: tc_dir.chmod(0o755))
+
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+
+        self.assertEqual(result.compile, "ok")
+        self.assertEqual(result.tests_total, 0)
+        self.assertEqual(result.score, 100)
 
     def test_all_tests_pass(self) -> None:
         _, question_root, submission_dir = self.make_workspace()

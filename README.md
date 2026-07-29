@@ -65,8 +65,8 @@ QUESTION_ROOT/
 │   └── sample-1-out.txt
 ├── chohatten_kouki1/
 │   └── chohatten_kouki1.md
-└── j2exam0601/
-    └── j2exam0601.md
+└── j2exam0730/
+    └── j2exam0730.md
 ```
 
 課題定義ファイルの書式（`j2pro0410.md` の例）:
@@ -89,7 +89,7 @@ No0410_2.c, 1251
 ```bash
 yoroshikuonegaishima-su            # 引数なし: カレントディレクトリの *.c を提出
 yoroshikuonegaishima-su j2pro0410  # 引数あり: 指定したディレクトリを提出
-yoroshikuonegaishima-su j2exam0611 # exam を含む名前は試験モード（採点結果を表示しない）
+yoroshikuonegaishima-su j2exam0730 # exam を含む名前は試験モード（採点結果を表示しない）
 ```
 
 ### 動作ルール
@@ -104,7 +104,7 @@ yoroshikuonegaishima-su j2exam0611 # exam を含む名前は試験モード（�
 - 削除: `<ファイル名>: 削除しました。`
 
 ### 試験モード（自動判定）
-- 提出先ディレクトリ名に `exam` を含む場合（例: `j2exam0611`）、自動的に試験モードになる。
+- 提出先ディレクトリ名に `exam` を含む場合（例: `j2exam0730`）、自動的に試験モードになる。
 - 試験モードでは**採点を実行せず、コンパイル結果やスコアを表示しない**（`grade.json` も作成しない）。
 - ファイルの受理（コピー）と「提出しました」の確認表示は通常どおり行うため、学生は**提出できたことは分かるが、正誤やコンパイル可否は分からない**。
 - 提出状況は `scouterExam` で確認する。
@@ -162,7 +162,7 @@ scouterExam
 - 対象試験は `scouterExam.py` 内の `EXAM_DATE` を手動編集して指定する。
 
 ```python
-EXAM_DATE = "0601"   # → j2exam0601 が対象
+EXAM_DATE = "0730"   # → j2exam0730 が対象
 ```
 
 ---
@@ -181,15 +181,15 @@ python scouterExam_allstudents.py
 ### get_j2exam.py — 試験ディレクトリの回収
 
 ```bash
-sudo python3 get_j2exam.py 0611
+sudo python3 get_j2exam.py 0730
 ```
 
-- 名簿の全学生について、`/home/jstudent/<j学籍>/J2program/j2exam0611` をカレントディレクトリの `./j2exam0611/<j学籍>/` へ中身ごとコピーする。
+- 名簿の全学生について、`/home/jstudent/<j学籍>/J2program/j2exam0730` をカレントディレクトリの `./j2exam0730/<j学籍>/` へ中身ごとコピーする。
 - 学生ホームは本人のみアクセス可（`drwx------`）のため **root（sudo）で実行**する。
 - ディレクトリが無い学生はコピーせずに知らせる。
 
 ```
 j25401 コピー完了
 j25402 コピー完了
-j25403 j2exam0611がない
+j25403 j2exam0730がない
 ```

@@ -73,7 +73,7 @@ def main(argv: list[str]) -> int:
         return 0
 
     if len(argv) != 2:
-        print("使い方: get_j2exam.py <日付>   例: get_j2exam.py 0611")
+        print("使い方: get_j2exam.py <日付>   例: get_j2exam.py 0730")
         return 1
 
     date = argv[1]

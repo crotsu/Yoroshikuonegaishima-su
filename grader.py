@@ -73,7 +73,8 @@ def grade_file(
     with tempfile.TemporaryDirectory() as tmpdir:
         exe_path = Path(tmpdir) / "a.out"
         proc = subprocess.run(
-            ["gcc", str(source_path), "-o", str(exe_path)],
+            # math.h を使うプログラムのために -lm を常に付ける（使わない場合も無害）
+            ["gcc", str(source_path), "-o", str(exe_path), "-lm"],
             capture_output=True,
             text=True,
             timeout=30,

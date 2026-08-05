@@ -75,6 +75,22 @@ class GraderTest(unittest.TestCase):
         self.assertEqual(result.compile, "ok")
         self.assertEqual(result.compile_error, "")
 
+    def test_math_h_program_compiles(self) -> None:
+        # math.h を使うプログラムは -lm が必要（-lm なしだとリンクエラーになる）
+        _, question_root, submission_dir = self.make_workspace()
+        c_file = self.write_c_file(
+            submission_dir,
+            "No0108_1.c",
+            # 定数引数だと gcc が定数畳み込みしてリンクが不要になるため、
+            # 実行時に決まる値を渡して確実に libm へのリンクを発生させる
+            "#include <stdio.h>\n#include <math.h>\n"
+            "int main(int argc, char **argv){ (void)argv; "
+            "printf(\"%f\\n\", sqrt((double)argc) + pow((double)argc, 3.0)); return 0; }\n",
+        )
+        result = MODULE.grade_file(c_file, question_root, "j2pro0108")
+        self.assertEqual(result.compile, "ok", result.compile_error)
+        self.assertEqual(result.compile_error, "")
+
     def make_testcase_dir(
         self,
         question_root: Path,

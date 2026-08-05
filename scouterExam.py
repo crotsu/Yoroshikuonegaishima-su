@@ -26,6 +26,14 @@ def _load_config() -> object:
     return module
 
 
+def _is_readable_file(path: Path) -> bool:
+    """権限などでアクセスできない場合はクラッシュせず False を返す。"""
+    try:
+        return path.is_file()
+    except OSError:
+        return False
+
+
 def _parse_md(md_path: Path) -> list[str]:
     """試験定義ファイルからファイル名一覧を返す。
 
@@ -49,18 +57,26 @@ def check_exam(user: str, question_root: Path, submission_base: Path, exam_date:
 
     print(user)
 
-    if not md_path.is_file():
+    if not _is_readable_file(md_path):
         print(f"{dir_name}.md: 設定ファイルが存在しません。")
         return 1
 
-    filenames = _parse_md(md_path)
+    try:
+        filenames = _parse_md(md_path)
+    except OSError:
+        print(f"{dir_name}.md: 設定ファイルにアクセスできません（権限）。担当教員に連絡してください。")
+        return 1
     total = len(filenames)
     submitted = 0
 
     for filename in filenames:
         filepath = submission_base / user / dir_name / filename
-        if filepath.is_file():
-            mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+        if _is_readable_file(filepath):
+            try:
+                mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+            except OSError:
+                print(f"未提出  : {filename}")
+                continue
             print(f"O.K.    : {filename} ({mtime})")
             submitted += 1
         else:
@@ -75,6 +91,9 @@ def main(argv: list[str]) -> int:
         config = _load_config()
     except FileNotFoundError as e:
         print(e)
+        return 1
+    except OSError:
+        print(f"{CONFIG_PATH.name}: 設定ファイルにアクセスできません（権限）。担当教員に連絡してください。")
         return 1
 
     try:

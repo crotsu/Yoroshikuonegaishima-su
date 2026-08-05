@@ -33,9 +33,29 @@ def current_term() -> str:
     return "kouki"
 
 
+def _is_readable_file(path: Path) -> bool:
+    """権限などでアクセスできない場合はクラッシュせず False を返す。"""
+    try:
+        return path.is_file()
+    except OSError:
+        return False
+
+
+def _is_readable_dir(path: Path) -> bool:
+    """権限などでアクセスできない場合はクラッシュせず False を返す。"""
+    try:
+        return path.is_dir()
+    except OSError:
+        return False
+
+
 def _parse_md(md_path: Path) -> list[tuple[str, int]]:
     entries = []
-    for line in md_path.read_text(encoding="utf-8").splitlines():
+    try:
+        text = md_path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    for line in text.splitlines():
         if "," not in line:
             continue
         filename, point_str = line.split(",", 1)
@@ -72,17 +92,26 @@ def check_assignments(
     for assignment_dir in sorted(md_dirs):
         dir_name = assignment_dir.name
         md_path = assignment_dir / f"{dir_name}.md"
-        if not md_path.is_file():
+        if not _is_readable_file(md_path):
             continue
         for filename, point in _parse_md(md_path):
             filepath = submission_base / user / dir_name / filename
             total += 1
-            if filepath.is_file():
-                mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+            if _is_readable_file(filepath):
+                try:
+                    mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+                except OSError:
+                    print(f"未提出  : {filename}")
+                    continue
                 stem = Path(filename).stem
                 grade_json = filepath.parent / f"{stem}_grade.json"
-                if grade_json.is_file():
-                    score = json.loads(grade_json.read_text(encoding="utf-8")).get("score", 100)
+                score = None
+                if _is_readable_file(grade_json):
+                    try:
+                        score = json.loads(grade_json.read_text(encoding="utf-8")).get("score", 100)
+                    except (OSError, ValueError):
+                        score = None  # 読めない・壊れている → 採点情報なし扱い
+                if score is not None:
                     if score > 0:
                         print(f"O.K.    : {filename} ({mtime})")
                         submitted += 1
@@ -103,10 +132,11 @@ def check_assignments(
 
 def j2pro_dirs(question_root: Path, term: str) -> list[Path]:
     """前期/後期に対応する j2pro* ディレクトリ一覧を返す。"""
-    return [
-        d for d in question_root.glob("j2pro????")
-        if d.is_dir() and _j2pro_term(d.name) == term
-    ]
+    try:
+        candidates = list(question_root.glob("j2pro????"))
+    except OSError:
+        return []
+    return [d for d in candidates if _is_readable_dir(d) and _j2pro_term(d.name) == term]
 
 
 def main(argv: list[str]) -> int:
@@ -114,6 +144,9 @@ def main(argv: list[str]) -> int:
         config = _load_config()
     except FileNotFoundError as e:
         print(e)
+        return 1
+    except OSError:
+        print(f"{CONFIG_PATH.name}: 設定ファイルにアクセスできません（権限）。担当教員に連絡してください。")
         return 1
 
     try:

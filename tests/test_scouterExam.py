@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import redirect_stdout
 from io import StringIO
 import importlib.util
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -111,6 +112,21 @@ class ScouterExamTest(unittest.TestCase):
 
         self.assertEqual(code, 1)
         self.assertIn(f"{EXAM_DIR}.md: 設定ファイルが存在しません。", out)
+
+    def test_unreadable_md_dir_returns_error(self) -> None:
+        # 権限で読めない試験ディレクトリでもトレースバックを出さずに終了する
+        if os.geteuid() == 0:
+            self.skipTest("root はパーミッションを無視するため")
+        question_root, submission_base = self.make_workspace()
+        self.write_md(question_root, "No1.c\n")
+        hidden = question_root / EXAM_DIR
+        hidden.chmod(0o000)
+        self.addCleanup(lambda: hidden.chmod(0o755))
+
+        code, out = self.run_exam("j25442", question_root, submission_base)
+
+        self.assertEqual(code, 1)
+        self.assertIn(f"{EXAM_DIR}.md", out)
 
 
 if __name__ == "__main__":

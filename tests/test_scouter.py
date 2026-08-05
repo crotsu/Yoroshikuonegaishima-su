@@ -4,6 +4,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 import importlib.util
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -279,6 +280,27 @@ class ScouterTest(unittest.TestCase):
         _, output = self.run_scouter("j24001", question_root, submission_base)
 
         self.assertIn("O.K.    : No0408_1.c", output)
+        self.assertIn("1/1", output)
+
+    def test_unreadable_md_dir_is_skipped(self) -> None:
+        # 権限で読めない課題ディレクトリがあってもクラッシュせず、他の課題は集計する
+        if os.geteuid() == 0:
+            self.skipTest("root はパーミッションを無視するため")
+        _, question_root, submission_base = self.make_workspace()
+        _write_md(question_root, "j2pro0408", "No0408_1.c, 100\n")
+        _write_md(question_root, "j2pro0513", "No0513_1.c, 100\n")
+        submitted_dir = submission_base / "j24001" / "j2pro0408"
+        submitted_dir.mkdir(parents=True)
+        (submitted_dir / "No0408_1.c").write_text("int main(){}", encoding="utf-8")
+        hidden = question_root / "j2pro0513"
+        hidden.chmod(0o000)
+        self.addCleanup(lambda: hidden.chmod(0o755))
+
+        code, output = self.run_scouter("j24001", question_root, submission_base)
+
+        self.assertEqual(code, 0)
+        self.assertIn("O.K.    : No0408_1.c", output)
+        self.assertNotIn("No0513_1.c", output)
         self.assertIn("1/1", output)
 
 

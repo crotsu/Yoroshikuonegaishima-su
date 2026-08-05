@@ -46,7 +46,11 @@ def _student_to_user(student_id: str) -> str:
 
 
 def _load_roster(path: Path) -> list[tuple[str, str]]:
-    if not path.is_file():
+    try:
+        exists = path.is_file()
+    except OSError:
+        exists = False
+    if not exists:
         raise FileNotFoundError(f"{path}: 学生名簿が存在しません。")
     students = []
     with path.open(encoding="utf-8-sig", newline="") as f:

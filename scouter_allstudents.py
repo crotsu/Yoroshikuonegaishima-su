@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import importlib.util
+import json
 from pathlib import Path
 import sys
 
@@ -62,6 +63,44 @@ def _load_roster(path: Path) -> list[tuple[str, str]]:
     return students
 
 
+def _count_submitted(
+    user: str,
+    submission_base: Path,
+    md_dirs: list[Path],
+) -> tuple[int, int]:
+    """(提出数, 課題数) を返す。check_assignments と同じ判定を出力せずに行う。"""
+    total = 0
+    submitted = 0
+
+    for assignment_dir in sorted(md_dirs):
+        dir_name = assignment_dir.name
+        md_path = assignment_dir / f"{dir_name}.md"
+        if not scouter._is_readable_file(md_path):
+            continue
+        for filename, _point in scouter._parse_md(md_path):
+            filepath = submission_base / user / dir_name / filename
+            total += 1
+            if not scouter._is_readable_file(filepath):
+                continue
+            try:
+                filepath.stat()
+            except OSError:
+                continue
+            stem = Path(filename).stem
+            grade_json = filepath.parent / f"{stem}_grade.json"
+            score = None
+            if scouter._is_readable_file(grade_json):
+                try:
+                    score = json.loads(grade_json.read_text(encoding="utf-8")).get("score", 100)
+                except (OSError, ValueError):
+                    score = None  # 読めない・壊れている → 採点情報なし扱い
+            if score is not None and score <= 0:
+                continue  # [error] 扱い
+            submitted += 1
+
+    return submitted, total
+
+
 def main(argv: list[str]) -> int:
     try:
         config = _load_config()
@@ -89,6 +128,15 @@ def main(argv: list[str]) -> int:
             md_dirs=md_dirs,
         )
         print()
+
+    print(f"===== 提出状況一覧（{term}） =====")
+    for sid, name in roster:
+        submitted, total = _count_submitted(
+            user=_student_to_user(sid),
+            submission_base=submission_base,
+            md_dirs=md_dirs,
+        )
+        print(f"{sid},{name},{submitted}/{total}")
 
     return 0
 

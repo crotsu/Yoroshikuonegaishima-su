@@ -62,6 +62,30 @@ def _load_roster(path: Path) -> list[tuple[str, str]]:
     return students
 
 
+def _count_submitted(user: str, question_root: Path, submission_base: Path, exam_date: str) -> tuple[int, int]:
+    """(提出数, 課題数) を返す。定義ファイルが読めない場合は (0, 0)。"""
+    dir_name = f"j2exam{exam_date}"
+    md_path = question_root / dir_name / f"{dir_name}.md"
+
+    if not scouterExam._is_readable_file(md_path):
+        return 0, 0
+    try:
+        filenames = scouterExam._parse_md(md_path)
+    except OSError:
+        return 0, 0
+
+    submitted = 0
+    for filename in filenames:
+        filepath = submission_base / user / dir_name / filename
+        if scouterExam._is_readable_file(filepath):
+            try:
+                filepath.stat()
+            except OSError:
+                continue
+            submitted += 1
+    return submitted, len(filenames)
+
+
 def main(argv: list[str]) -> int:
     try:
         config = _load_config()
@@ -86,6 +110,16 @@ def main(argv: list[str]) -> int:
             exam_date=scouterExam.EXAM_DATE,
         )
         print()
+
+    print(f"===== 提出状況一覧（j2exam{scouterExam.EXAM_DATE}） =====")
+    for sid, name in roster:
+        submitted, total = _count_submitted(
+            user=_student_to_user(sid),
+            question_root=question_root,
+            submission_base=submission_base,
+            exam_date=scouterExam.EXAM_DATE,
+        )
+        print(f"{sid},{name},{submitted}/{total}")
 
     return 0
 
